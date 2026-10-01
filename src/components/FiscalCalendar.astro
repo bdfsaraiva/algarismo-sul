@@ -76,7 +76,7 @@ const labels = {
 </section>
 
 <script>
-  import { upcomingEvents, type FiscalEvent, type Lang } from '../data/fiscal';
+  import { calendarDateIn, upcomingEvents, type FiscalEvent, type Lang } from '../data/fiscal';
 
   const PAGE_SIZE = 6;
   const DAY_MS = 86_400_000;
@@ -101,9 +101,11 @@ const labels = {
     const labels = JSON.parse(root.dataset.labels ?? '{}') as Labels;
     const locale = lang === 'pt' ? 'pt-PT' : 'en-GB';
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // Portuguese deadlines follow Lisbon's calendar, whatever the visitor's time zone.
+    const today = calendarDateIn('Europe/Lisbon');
     const events = upcomingEvents(today, lang);
+    // "Next deadline" skips entries that only open a filing period.
+    const nextIndex = events.findIndex((ev) => !ev.isStart);
 
     const monthShort = new Intl.DateTimeFormat(locale, { month: 'short' });
     const fullDate = new Intl.DateTimeFormat(locale, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
@@ -114,7 +116,8 @@ const labels = {
       const sameYear = end.getFullYear() === today.getFullYear();
       const startText = new Intl.DateTimeFormat(locale, sameYear ? { month: 'long' } : { month: 'long', year: 'numeric' }).format(today);
       const endText = new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }).format(end);
-      period.textContent = `${startText} — ${endText}`;
+      const text = `${startText} — ${endText}`;
+      period.textContent = text.charAt(0).toLocaleUpperCase(locale) + text.slice(1);
     }
 
     const isoDate = (d: Date) =>
@@ -131,7 +134,7 @@ const labels = {
       item.querySelector('.cal-title')!.textContent = ev.title;
       item.querySelector('.cal-rel')!.textContent = `${ev.isStart ? `${labels.opens} · ` : ''}${relative.format(days, 'day')}`;
       item.querySelector('.cal-tag')!.textContent = ev.tag;
-      if (index === 0) {
+      if (index === nextIndex) {
         item.classList.add('is-next');
         const badge = item.querySelector<HTMLElement>('.cal-badge')!;
         badge.textContent = labels.next;
@@ -157,7 +160,7 @@ const labels = {
     renderBatch();
 
     more.addEventListener('click', () => {
-      if (more.disabled) return;
+      if (more.disabled || more.classList.contains('is-loading')) return;
       more.classList.add('is-loading');
       moreLabel.textContent = labels.loading;
       window.setTimeout(() => {
@@ -191,10 +194,6 @@ const labels = {
     font-family: var(--font-display);
     font-style: italic;
     font-size: clamp(1.4rem, 2.4vw, 1.8rem);
-    text-transform: lowercase;
-  }
-  .cal-period::first-letter {
-    text-transform: uppercase;
   }
   .cal-official {
     display: inline-flex;

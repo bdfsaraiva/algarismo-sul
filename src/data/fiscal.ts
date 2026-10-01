@@ -6,8 +6,9 @@
  *
  * 1. Prazo em fim de semana ou feriado nacional → dia útil seguinte.
  * 2. "Férias fiscais" (art. 57.º-A da LGT, Lei n.º 7/2021): obrigações da AT
- *    cujo prazo termine em agosto podem ser cumpridas até 31 de agosto. Não se
- *    aplica à Segurança Social.
+ *    cujo prazo termine em agosto podem ser cumpridas até 31 de agosto, ainda
+ *    que não seja dia útil. Um prazo legal que já é 31 de agosto segue a regra
+ *    geral (fim de semana → setembro). Não se aplica à Segurança Social.
  * 3. IVA periódico (declaração e pagamento) com prazo em agosto passa para
  *    20/25 de setembro, como tem sido prática da AT (ver agenda fiscal anual).
  *
@@ -434,8 +435,20 @@ export function resolveDueDate(ob: Obligation, year: number, month: number): Dat
   if (ob.ivaSeptemberDay !== undefined) {
     return nextWorkday(new Date(legal.getFullYear(), SEPTEMBER, ob.ivaSeptemberDay));
   }
-  // Art. 57.º-A LGT: até ao último dia de agosto, ainda que não seja dia útil.
-  return new Date(legal.getFullYear(), AUGUST, 31);
+  const augustEnd = new Date(legal.getFullYear(), AUGUST, 31);
+  // A deadline that is already 31 August gains nothing from art. 57.º-A: the
+  // general rule applies (AT agenda: IMI on 2/9/2024 and 1/9/2025).
+  if (legal.getTime() === augustEnd.getTime()) return shifted;
+  // Art. 57.º-A LGT: until 31 August, even when it is not a workday
+  // (AT agenda: withholding tax due 31/8 in 2024 and 2025, a Saturday/Sunday).
+  return augustEnd;
+}
+
+/** Calendar day (at local midnight) currently showing in `timeZone`. */
+export function calendarDateIn(timeZone: string, now: Date = new Date()): Date {
+  const parts = new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric', month: 'numeric', day: 'numeric' }).formatToParts(now);
+  const part = (type: Intl.DateTimeFormatPartTypes) => Number(parts.find((p) => p.type === type)?.value);
+  return new Date(part('year'), part('month') - 1, part('day'));
 }
 
 function appliesInMonth(ob: Obligation, month: number): boolean {
