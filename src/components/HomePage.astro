@@ -1,0 +1,38 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import About from './About.astro';
+import Contact from './Contact.astro';
+import Faq from './Faq.astro';
+import FinalCta from './FinalCta.astro';
+import FiscalCalendar from './FiscalCalendar.astro';
+import Hero from './Hero.astro';
+import Services from './Services.astro';
+import Team from './Team.astro';
+import Testimonials from './Testimonials.astro';
+import Ticker from './Ticker.astro';
+import { navItems, useT, type Lang, type SectionId } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useT(lang);
+
+// Section numbers follow the sections actually shown (team/testimonials may be hidden).
+const order = navItems(t).map((item) => item.id);
+const num = (id: SectionId) => String(order.indexOf(id) + 1).padStart(2, '0');
+---
+
+<BaseLayout lang={lang} route="home">
+  <Hero lang={lang} />
+  <Ticker lang={lang} />
+  <Services lang={lang} index={num('servicos')} />
+  <About lang={lang} index={num('sobre')} />
+  <Team lang={lang} index={num('equipa')} />
+  <FiscalCalendar lang={lang} index={num('calendario')} />
+  <Testimonials lang={lang} index={num('testemunhos')} />
+  <Faq lang={lang} index={num('faq')} />
+  <Contact lang={lang} index={num('contactos')} />
+  <FinalCta lang={lang} />
+</BaseLayout>

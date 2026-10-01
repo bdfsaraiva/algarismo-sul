@@ -1,0 +1,363 @@
+---
+import Icon from './Icon.astro';
+import SectionHead from './SectionHead.astro';
+import { SITE } from '../data/site';
+import { useT, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+  index: string;
+}
+
+const { lang } = Astro.props;
+const t = useT(lang);
+const labels = {
+  next: t.calendar.next,
+  opens: t.calendar.opens,
+  loadMore: t.calendar.loadMore,
+  loading: t.calendar.loading,
+  done: t.calendar.done,
+};
+---
+
+<section
+  class="section section--navy calendar"
+  id="calendario"
+  aria-labelledby="calendario-title"
+  data-calendar
+  data-lang={lang}
+  data-labels={JSON.stringify(labels)}
+>
+  <div class="container">
+    <SectionHead index={Astro.props.index} eyebrow={t.calendar.eyebrow} title={t.calendar.title} intro={t.calendar.intro} titleId="calendario-title" />
+
+    <div class="cal-toolbar reveal">
+      <p class="cal-period">
+        <span class="slash" aria-hidden="true">/</span>
+        <span data-cal-period>{t.calendar.horizon}</span>
+      </p>
+      <a class="cal-official link-underline" href={SITE.taxAgenda} target="_blank" rel="noopener">
+        {t.calendar.officialLink}
+        <Icon name="arrow-up-right" size={16} />
+      </a>
+    </div>
+
+    <ol class="cal-list" role="list" data-cal-list></ol>
+
+    <noscript>
+      <p class="cal-noscript">
+        {t.calendar.noscript}
+        <a href={SITE.taxAgenda} target="_blank" rel="noopener">{t.calendar.officialLink}</a>
+      </p>
+    </noscript>
+
+    <div class="cal-actions">
+      <button class="btn btn-outline-light cal-more" type="button" data-cal-more hidden>
+        <span class="spinner" aria-hidden="true"></span>
+        <span data-cal-more-label>{t.calendar.loadMore}</span>
+        <Icon name="arrow-down" />
+      </button>
+    </div>
+
+    <p class="cal-disclaimer">{t.calendar.disclaimer}</p>
+  </div>
+
+  <template data-cal-template>
+    <li class="cal-item">
+      <time class="cal-date"><span class="cal-day"></span><span class="cal-month"></span></time>
+      <div class="cal-main">
+        <span class="cal-badge" hidden></span>
+        <p class="cal-title"></p>
+        <p class="cal-rel"></p>
+      </div>
+      <span class="cal-tag"></span>
+    </li>
+  </template>
+</section>
+
+<script>
+  import { upcomingEvents, type FiscalEvent, type Lang } from '../data/fiscal';
+
+  const PAGE_SIZE = 6;
+  const DAY_MS = 86_400_000;
+
+  interface Labels {
+    next: string;
+    opens: string;
+    loadMore: string;
+    loading: string;
+    done: string;
+  }
+
+  function initCalendar(root: HTMLElement): void {
+    const list = root.querySelector<HTMLOListElement>('[data-cal-list]');
+    const template = root.querySelector<HTMLTemplateElement>('[data-cal-template]');
+    const more = root.querySelector<HTMLButtonElement>('[data-cal-more]');
+    const moreLabel = root.querySelector<HTMLElement>('[data-cal-more-label]');
+    const period = root.querySelector<HTMLElement>('[data-cal-period]');
+    if (!list || !template || !more || !moreLabel) return;
+
+    const lang = (root.dataset.lang === 'en' ? 'en' : 'pt') satisfies Lang;
+    const labels = JSON.parse(root.dataset.labels ?? '{}') as Labels;
+    const locale = lang === 'pt' ? 'pt-PT' : 'en-GB';
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const events = upcomingEvents(today, lang);
+
+    const monthShort = new Intl.DateTimeFormat(locale, { month: 'short' });
+    const fullDate = new Intl.DateTimeFormat(locale, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    const relative = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
+
+    if (period) {
+      const end = new Date(today.getFullYear(), today.getMonth() + 2, 1);
+      const sameYear = end.getFullYear() === today.getFullYear();
+      const startText = new Intl.DateTimeFormat(locale, sameYear ? { month: 'long' } : { month: 'long', year: 'numeric' }).format(today);
+      const endText = new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }).format(end);
+      period.textContent = `${startText} — ${endText}`;
+    }
+
+    const isoDate = (d: Date) =>
+      `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+    const buildItem = (ev: FiscalEvent, index: number, batchIndex: number): HTMLLIElement => {
+      const item = (template.content.firstElementChild as HTMLLIElement).cloneNode(true) as HTMLLIElement;
+      const days = Math.round((ev.date.getTime() - today.getTime()) / DAY_MS);
+      const time = item.querySelector('time')!;
+      time.dateTime = isoDate(ev.date);
+      time.title = fullDate.format(ev.date);
+      item.querySelector('.cal-day')!.textContent = String(ev.date.getDate()).padStart(2, '0');
+      item.querySelector('.cal-month')!.textContent = monthShort.format(ev.date).replace('.', '');
+      item.querySelector('.cal-title')!.textContent = ev.title;
+      item.querySelector('.cal-rel')!.textContent = `${ev.isStart ? `${labels.opens} · ` : ''}${relative.format(days, 'day')}`;
+      item.querySelector('.cal-tag')!.textContent = ev.tag;
+      if (index === 0) {
+        item.classList.add('is-next');
+        const badge = item.querySelector<HTMLElement>('.cal-badge')!;
+        badge.textContent = labels.next;
+        badge.hidden = false;
+      }
+      item.style.setProperty('--i', String(batchIndex));
+      return item;
+    };
+
+    let rendered = 0;
+    const renderBatch = (): HTMLLIElement | null => {
+      const batch = events.slice(rendered, rendered + PAGE_SIZE);
+      const items = batch.map((ev, i) => buildItem(ev, rendered + i, i));
+      list.append(...items);
+      rendered += batch.length;
+      const finished = rendered >= events.length;
+      more.hidden = events.length <= PAGE_SIZE;
+      more.disabled = finished;
+      moreLabel.textContent = finished ? labels.done : labels.loadMore;
+      return items[0] ?? null;
+    };
+
+    renderBatch();
+
+    more.addEventListener('click', () => {
+      if (more.disabled) return;
+      more.classList.add('is-loading');
+      moreLabel.textContent = labels.loading;
+      window.setTimeout(() => {
+        const first = renderBatch();
+        more.classList.remove('is-loading');
+        if (first) {
+          first.tabIndex = -1;
+          first.focus({ preventScroll: true });
+        }
+      }, 350);
+    });
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-calendar]').forEach(initCalendar);
+</script>
+
+<style>
+  .cal-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--on-navy-rule);
+  }
+  .cal-period {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 12px;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: clamp(1.4rem, 2.4vw, 1.8rem);
+    text-transform: lowercase;
+  }
+  .cal-period::first-letter {
+    text-transform: uppercase;
+  }
+  .cal-official {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
+    color: var(--on-navy-muted);
+    text-decoration: none;
+  }
+  .cal-official:hover {
+    color: var(--white);
+  }
+
+  .cal-list {
+    list-style: none;
+    padding: 0;
+    min-height: 120px;
+  }
+  .cal-list :global(.cal-item) {
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 24px;
+    padding: 22px 0;
+    border-bottom: 1px solid var(--on-navy-rule);
+    animation: cal-in 0.6s var(--ease-out) both;
+    animation-delay: calc(var(--i, 0) * 60ms);
+    outline-offset: -2px;
+  }
+  @keyframes cal-in {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+  }
+  .cal-list :global(.cal-item.is-next) {
+    position: relative;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.06), transparent 70%);
+  }
+  .cal-list :global(.cal-item.is-next)::before {
+    content: '';
+    position: absolute;
+    left: -16px;
+    top: 18px;
+    bottom: 18px;
+    width: 2px;
+    background: var(--sky);
+  }
+  .cal-list :global(.cal-date) {
+    display: grid;
+    justify-items: start;
+    line-height: 1;
+  }
+  .cal-list :global(.cal-day) {
+    font-family: var(--font-mono);
+    font-size: 2.4rem;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+  .cal-list :global(.cal-month) {
+    margin-top: 8px;
+    font-family: var(--font-label);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--sky);
+  }
+  .cal-list :global(.cal-main) {
+    display: grid;
+    gap: 4px;
+    justify-items: start;
+  }
+  .cal-list :global(.cal-badge) {
+    font-family: var(--font-label);
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--sky);
+  }
+  .cal-list :global(.cal-title) {
+    font-size: 1.0625rem;
+    font-weight: 500;
+    line-height: 1.45;
+  }
+  .cal-list :global(.cal-rel) {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--on-navy-muted);
+  }
+  .cal-list :global(.cal-tag) {
+    padding: 6px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.32);
+    font-family: var(--font-label);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    white-space: nowrap;
+  }
+
+  .cal-noscript {
+    padding: 24px 0;
+    color: var(--on-navy-muted);
+  }
+  .cal-noscript a {
+    color: var(--white);
+  }
+  .cal-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+  }
+  .cal-more:disabled {
+    opacity: 0.55;
+    cursor: default;
+  }
+  .cal-more:disabled svg {
+    display: none;
+  }
+  .spinner {
+    display: none;
+    width: 14px;
+    height: 14px;
+    border: 1.5px solid rgba(255, 255, 255, 0.3);
+    border-top-color: var(--white);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  .cal-more.is-loading .spinner {
+    display: inline-block;
+  }
+  .cal-more.is-loading svg {
+    display: none;
+  }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  .cal-disclaimer {
+    max-width: 52em;
+    margin: 48px auto 0;
+    text-align: center;
+    font-size: 0.8125rem;
+    color: var(--on-navy-muted);
+  }
+
+  @media (max-width: 640px) {
+    .cal-list :global(.cal-item) {
+      grid-template-columns: 64px minmax(0, 1fr);
+      gap: 8px 16px;
+    }
+    .cal-list :global(.cal-tag) {
+      grid-column: 2;
+      justify-self: start;
+    }
+    .cal-list :global(.cal-day) {
+      font-size: 1.9rem;
+    }
+    .cal-list :global(.cal-item.is-next)::before {
+      left: -10px;
+    }
+  }
+</style>

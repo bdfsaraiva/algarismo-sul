@@ -1,0 +1,174 @@
+---
+import SectionHead from './SectionHead.astro';
+import { rich, useT, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+  index: string;
+}
+
+const t = useT(Astro.props.lang);
+const pad = (n: number) => String(n).padStart(2, '0');
+---
+
+<section class="section services" id="servicos" aria-labelledby="servicos-title">
+  <div class="container">
+    <SectionHead index={Astro.props.index} eyebrow={t.services.eyebrow} title={t.services.title} intro={t.services.intro} titleId="servicos-title" />
+
+    <ol class="service-list" role="list">
+      {
+        t.services.items.map((service, i) => (
+          <li class:list={['service', { 'service--flip': i % 2 === 1 }]}>
+            <div class:list={['service-panel reveal', i % 2 === 0 ? 'panel--navy' : 'panel--mist']} aria-hidden="true">
+              <span class="panel-num">{pad(i + 1)}</span>
+              <span class="panel-slash" />
+              <span class="panel-keywords">{service.keywords}</span>
+            </div>
+            <div class="service-body reveal" style="--delay: .1s">
+              <p class="service-index">
+                <span>{pad(i + 1)}</span>
+                <span class="slash" aria-hidden="true">/</span>
+                <span>{pad(t.services.items.length)}</span>
+              </p>
+              <h3 class="display service-title">{service.title}</h3>
+              <p class="service-desc" set:html={rich(service.desc)} />
+              <ul class="service-points" role="list">
+                {service.points.map((point) => <li>{point}</li>)}
+              </ul>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .service-list {
+    display: grid;
+    gap: clamp(64px, 9vw, 128px);
+    list-style: none;
+    padding: 0;
+  }
+  .service {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 24px;
+    row-gap: 32px;
+    align-items: center;
+  }
+  .service-panel {
+    grid-column: 1 / span 5;
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 5 / 4;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: clamp(20px, 3vw, 36px);
+  }
+  .service-body {
+    grid-column: 7 / span 6;
+    display: grid;
+    gap: 20px;
+  }
+  .service--flip .service-panel {
+    grid-column: 8 / span 5;
+    grid-row: 1;
+  }
+  .service--flip .service-body {
+    grid-column: 1 / span 6;
+    grid-row: 1;
+  }
+
+  .panel--navy {
+    background: var(--navy);
+    color: var(--white);
+  }
+  .panel--mist {
+    background: var(--mist);
+    color: var(--navy);
+  }
+  .panel-num {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 500;
+    font-size: clamp(6rem, 13vw, 11rem);
+    line-height: 0.85;
+    letter-spacing: -0.03em;
+  }
+  .panel-slash {
+    position: absolute;
+    left: 58%;
+    top: -15%;
+    width: 1px;
+    height: 130%;
+    background: currentColor;
+    opacity: 0.35;
+    transform: rotate(34deg);
+  }
+  .panel-keywords {
+    align-self: flex-end;
+    font-family: var(--font-label);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+  }
+  .panel--navy .panel-keywords {
+    color: var(--sky);
+  }
+
+  .service-index {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--muted);
+  }
+  .service-title {
+    font-size: clamp(2rem, 3.6vw, 3rem);
+  }
+  .service-desc {
+    color: var(--muted);
+    max-width: 36em;
+  }
+  .service-points {
+    display: grid;
+    gap: 0;
+    list-style: none;
+    padding: 0;
+    border-top: 1px solid var(--rule);
+  }
+  .service-points li {
+    position: relative;
+    padding: 14px 0 14px 28px;
+    border-bottom: 1px solid var(--rule);
+    font-size: 0.9375rem;
+    font-weight: 500;
+  }
+  .service-points li::before {
+    content: '/';
+    position: absolute;
+    left: 4px;
+    top: 9px;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.4rem;
+    color: var(--accent);
+  }
+
+  @media (max-width: 900px) {
+    .service-panel,
+    .service--flip .service-panel,
+    .service-body,
+    .service--flip .service-body {
+      grid-column: 1 / -1;
+      grid-row: auto;
+    }
+    .service-panel {
+      aspect-ratio: 16 / 9;
+    }
+  }
+</style>

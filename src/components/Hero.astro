@@ -1,0 +1,214 @@
+---
+import Icon from './Icon.astro';
+import { rich, useT, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const t = useT(Astro.props.lang);
+const lines = t.hero.title.split('\n');
+---
+
+<section class="hero" aria-labelledby="hero-title">
+  <div class="ledger" aria-hidden="true"></div>
+  <div class="hero-slash" aria-hidden="true"></div>
+
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow load" style="--n: 0">
+        <span class="slash" aria-hidden="true">/</span>
+        <span>{t.hero.eyebrow}</span>
+      </p>
+      <h1 class="display hero-title" id="hero-title">
+        {lines.map((line, i) => <span class="line load" style={`--n: ${i + 1}`} set:html={rich(line)} />)}
+      </h1>
+      <p class="lede load" style="--n: 4">{t.hero.lede}</p>
+      <div class="hero-actions load" style="--n: 5">
+        <a class="btn btn-primary" href="#contactos">
+          {t.cta.meeting}
+          <Icon name="arrow-right" />
+        </a>
+        <a class="btn btn-outline" href="#servicos">{t.cta.services}</a>
+      </div>
+    </div>
+
+    <aside class="hero-stats">
+      {
+        t.hero.stats.map((stat, i) => (
+          <figure class="frame stat load" style={`--n: ${i + 5}`}>
+            <span class="stat-value">{stat.value}</span>
+            <span class="stat-note">{stat.note}</span>
+            <figcaption class="frame-caption">{stat.label}</figcaption>
+          </figure>
+        ))
+      }
+    </aside>
+  </div>
+
+  <div class="container">
+    <ul class="hero-meta load" style="--n: 7" role="list">
+      {
+        t.hero.meta.map((item) => (
+          <li>
+            <span class="slash" aria-hidden="true">
+              /
+            </span>
+            {item}
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    overflow: hidden;
+    padding-block: clamp(56px, 9vw, 128px) clamp(40px, 5vw, 64px);
+    isolation: isolate;
+  }
+  /* Faint ledger columns: a nod to accounting paper. */
+  .ledger {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image: linear-gradient(to right, var(--rule) 1px, transparent 1px);
+    background-size: calc((min(100vw, var(--container) + 2 * var(--gutter)) - 2 * var(--gutter)) / 6) 100%;
+    background-position: center top;
+    opacity: 0.45;
+    mask-image: linear-gradient(to bottom, #000 30%, transparent 95%);
+  }
+  /* The monogram's diagonal, drawn across the hero. */
+  .hero-slash {
+    position: absolute;
+    z-index: -1;
+    top: -10%;
+    right: 22%;
+    width: 1px;
+    height: 130%;
+    background: linear-gradient(to bottom, transparent, var(--rule-strong) 20%, var(--rule-strong) 80%, transparent);
+    transform: rotate(34deg);
+    transform-origin: top;
+    animation: draw 1.6s 0.2s var(--ease-out) both;
+  }
+  @keyframes draw {
+    from {
+      clip-path: inset(0 0 100% 0);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 24px;
+    row-gap: 56px;
+    align-items: end;
+  }
+  .hero-copy {
+    grid-column: 1 / span 8;
+    display: grid;
+    gap: 32px;
+    justify-items: start;
+  }
+  .hero-title {
+    font-size: clamp(3.1rem, 8.4vw, 7.4rem);
+    line-height: 0.96;
+    letter-spacing: -0.02em;
+  }
+  .hero-title .line {
+    display: block;
+  }
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  .hero-stats {
+    grid-column: 10 / span 3;
+    display: grid;
+    gap: 48px;
+    padding-bottom: 12px;
+  }
+  .stat {
+    display: grid;
+    gap: 6px;
+    padding: 30px 24px 34px;
+    background: rgba(255, 255, 255, 0.8);
+  }
+  .stat-value {
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 4.6vw, 4.2rem);
+    font-weight: 500;
+    line-height: 1;
+    font-variant-numeric: lining-nums;
+  }
+  .stat-note {
+    font-size: 0.875rem;
+    color: var(--muted);
+  }
+
+  .hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 40px;
+    margin-top: clamp(56px, 7vw, 96px);
+    padding: 22px 0 0;
+    border-top: 1px solid var(--rule);
+    list-style: none;
+    font-family: var(--font-label);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  .hero-meta li {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  /* Orchestrated page load. */
+  .load {
+    animation: rise 0.9s var(--ease-out) both;
+    animation-delay: calc(0.08s * var(--n) + 0.1s);
+  }
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(22px);
+    }
+  }
+
+  @media (max-width: 1024px) {
+    .hero-copy {
+      grid-column: 1 / -1;
+    }
+    .hero-stats {
+      grid-column: 1 / -1;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px;
+      max-width: 560px;
+    }
+    .hero-slash {
+      right: 8%;
+    }
+  }
+  @media (max-width: 520px) {
+    .hero-stats {
+      gap: 16px;
+    }
+    .stat {
+      padding: 22px 14px 30px;
+    }
+    .frame-caption {
+      font-size: 0.5625rem;
+      letter-spacing: 0.16em;
+    }
+  }
+</style>

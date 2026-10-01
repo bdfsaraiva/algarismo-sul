@@ -1,0 +1,76 @@
+---
+/** Decorative marquee: it repeats the service names, so it is hidden from assistive tech. */
+import { useT, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const t = useT(Astro.props.lang);
+---
+
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track">
+    {
+      [0, 1].map(() => (
+        <ul class="ticker-group">
+          {t.ticker.map((item) => (
+            <li>
+              <span>{item}</span>
+              <span class="slash">/</span>
+            </li>
+          ))}
+        </ul>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .ticker {
+    overflow: hidden;
+    background: var(--navy);
+    color: var(--white);
+    padding-block: 26px;
+    mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+  }
+  .ticker-track {
+    display: flex;
+    width: max-content;
+    animation: scroll 48s linear infinite;
+  }
+  .ticker:hover .ticker-track {
+    animation-play-state: paused;
+  }
+  .ticker-group {
+    display: flex;
+    flex-shrink: 0;
+    list-style: none;
+    padding: 0;
+  }
+  .ticker li {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 36px;
+    padding-right: 36px;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: clamp(1.5rem, 2.6vw, 2.1rem);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .ticker .slash {
+    color: var(--sky);
+    font-size: 1.2em;
+  }
+  @keyframes scroll {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ticker-track {
+      animation: none;
+    }
+  }
+</style>

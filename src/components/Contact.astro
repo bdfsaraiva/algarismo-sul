@@ -1,0 +1,118 @@
+---
+import Icon from './Icon.astro';
+import MapConsent from './MapConsent.astro';
+import SectionHead from './SectionHead.astro';
+import { SITE } from '../data/site';
+import { useT, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+  index: string;
+}
+
+const { lang, index } = Astro.props;
+const t = useT(lang);
+---
+
+<section class="section contact" id="contactos" aria-labelledby="contactos-title">
+  <div class="container">
+    <SectionHead index={index} eyebrow={t.contact.eyebrow} title={t.contact.title} intro={t.contact.intro} titleId="contactos-title" />
+
+    <ul class="contact-grid" role="list">
+      <li class="contact-card reveal">
+        <span class="contact-icon"><Icon name="pin" size={22} /></span>
+        <h3 class="contact-label">{t.contact.address}</h3>
+        <address class="contact-value">
+          {SITE.address.street}<br />
+          {SITE.postalLine}
+        </address>
+        <a class="contact-link link-underline" href={SITE.maps.link} target="_blank" rel="noopener">
+          {t.contact.openMap}
+          <Icon name="arrow-up-right" size={14} />
+        </a>
+      </li>
+      <li class="contact-card reveal" style="--delay: .08s">
+        <span class="contact-icon"><Icon name="phone" size={22} /></span>
+        <h3 class="contact-label">{t.contact.phone}</h3>
+        <p class="contact-value">
+          <a class="link-underline" href={`tel:${SITE.phone.tel}`}>{SITE.phone.display}</a>
+        </p>
+        <a class="contact-link link-underline" href={`https://wa.me/${SITE.whatsapp.number}`} target="_blank" rel="noopener">
+          WhatsApp
+          <Icon name="arrow-up-right" size={14} />
+        </a>
+      </li>
+      <li class="contact-card reveal" style="--delay: .16s">
+        <span class="contact-icon"><Icon name="mail" size={22} /></span>
+        <h3 class="contact-label">{t.contact.email}</h3>
+        <p class="contact-value">
+          <a class="link-underline" href={`mailto:${SITE.email.address}`}>{SITE.email.address}</a>
+        </p>
+      </li>
+    </ul>
+
+    <MapConsent lang={lang} />
+  </div>
+</section>
+
+<style>
+  .contact-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 340px));
+    justify-content: center;
+    gap: 48px;
+    list-style: none;
+    padding: 0;
+    margin-bottom: clamp(56px, 7vw, 96px);
+  }
+  .contact-card {
+    display: grid;
+    gap: 14px;
+    justify-items: center;
+    align-content: start;
+    text-align: center;
+  }
+  .contact-icon {
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 8px;
+    border: 1px solid var(--rule-strong);
+    color: var(--navy);
+  }
+  .contact-label {
+    font-family: var(--font-label);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .contact-value {
+    font-family: var(--font-display);
+    font-style: normal;
+    font-size: clamp(1.35rem, 2vw, 1.6rem);
+    font-weight: 500;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+  .contact-value a {
+    text-decoration: none;
+  }
+  .contact-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--accent);
+    text-decoration: none;
+  }
+  @media (max-width: 900px) {
+    .contact-grid {
+      grid-template-columns: minmax(0, 420px);
+      gap: 40px;
+    }
+  }
+</style>

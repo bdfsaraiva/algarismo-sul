@@ -1,0 +1,109 @@
+---
+/**
+ * Google Maps facade: the iframe (and Google's cookies) only load after the
+ * visitor asks for it.
+ */
+import Icon from './Icon.astro';
+import { SITE } from '../data/site';
+import { useT, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const t = useT(Astro.props.lang);
+---
+
+<div class="map reveal" data-map data-src={SITE.maps.embed} data-title={t.map.title}>
+  <div class="map-facade">
+    <span class="map-pin" aria-hidden="true"><Icon name="pin" size={28} /></span>
+    <p class="map-address">
+      {`${SITE.address.street} · ${SITE.postalLine}`}
+    </p>
+    <p class="map-consent">{t.map.consent}</p>
+    <button class="btn btn-primary" type="button" data-map-load>{t.map.load}</button>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-map]').forEach((map) => {
+    map.querySelector('[data-map-load]')?.addEventListener('click', () => {
+      const iframe = document.createElement('iframe');
+      iframe.src = map.dataset.src ?? '';
+      iframe.title = map.dataset.title ?? '';
+      iframe.loading = 'lazy';
+      iframe.referrerPolicy = 'no-referrer-when-downgrade';
+      iframe.allowFullscreen = true;
+      map.replaceChildren(iframe);
+      map.classList.add('is-loaded');
+      iframe.focus();
+    });
+  });
+</script>
+
+<style>
+  .map {
+    position: relative;
+    aspect-ratio: 21 / 8;
+    min-height: 320px;
+    background:
+      linear-gradient(var(--rule) 1px, transparent 1px) 0 0 / 48px 48px,
+      linear-gradient(90deg, var(--rule) 1px, transparent 1px) 0 0 / 48px 48px,
+      var(--mist);
+    overflow: hidden;
+  }
+  .map::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: -20%;
+    width: 1px;
+    height: 140%;
+    background: var(--rule-strong);
+    transform: rotate(34deg);
+    pointer-events: none;
+  }
+  .map.is-loaded::after {
+    display: none;
+  }
+  .map-facade {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 14px;
+    padding: 32px 16px;
+    text-align: center;
+  }
+  .map-pin {
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    background: var(--navy);
+    color: var(--white);
+  }
+  .map-address {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 500;
+  }
+  .map-consent {
+    max-width: 34em;
+    font-size: 0.8125rem;
+    color: var(--muted);
+  }
+  .map :global(iframe) {
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  @media (max-width: 640px) {
+    .map {
+      aspect-ratio: auto;
+      min-height: 360px;
+    }
+  }
+</style>

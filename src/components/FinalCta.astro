@@ -1,0 +1,115 @@
+---
+import Icon from './Icon.astro';
+import { SITE } from '../data/site';
+import { rich, useT, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const t = useT(Astro.props.lang);
+---
+
+<section class="final" aria-labelledby="final-title">
+  <div class="container">
+    <div class="final-card reveal">
+      <div class="final-slash" aria-hidden="true"></div>
+      <h2 class="display final-title" id="final-title" set:html={rich(t.finalCta.title)} />
+      <p class="final-text">{t.finalCta.text}</p>
+      <div class="final-actions">
+        <a class="btn btn-light" href={`tel:${SITE.phone.tel}`}>
+          <Icon name="phone" />
+          {t.cta.call}
+        </a>
+        <a class="btn btn-outline-light" href={`https://wa.me/${SITE.whatsapp.number}`} target="_blank" rel="noopener">
+          <Icon name="whatsapp" />
+          {t.cta.whatsapp}
+        </a>
+        <a class="btn btn-outline-light" href={`mailto:${SITE.email.address}`}>
+          <Icon name="mail" />
+          {t.cta.email}
+        </a>
+      </div>
+      <span class="final-caption" aria-hidden="true">Algarismo <b>Sul</b></span>
+    </div>
+  </div>
+</section>
+
+<style>
+  .final {
+    padding-bottom: var(--section-y);
+  }
+  /* The logo's open square, at full scale. */
+  .final-card {
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    justify-items: center;
+    gap: 28px;
+    padding: clamp(56px, 8vw, 112px) clamp(20px, 6vw, 96px) clamp(72px, 9vw, 120px);
+    background: var(--navy);
+    color: var(--white);
+    text-align: center;
+    isolation: isolate;
+  }
+  .final-card::before {
+    content: '';
+    position: absolute;
+    inset: clamp(14px, 2vw, 24px);
+    z-index: -1;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+  }
+  /* Sits on the bottom border, opening it like the logo's frame. */
+  .final-caption {
+    position: absolute;
+    left: 50%;
+    bottom: clamp(14px, 2vw, 24px);
+    transform: translate(-50%, 50%);
+    padding: 0 22px;
+    font-family: var(--font-label);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    background: var(--navy);
+  }
+  .final-caption b {
+    font-weight: 700;
+  }
+  .final-slash {
+    position: absolute;
+    z-index: -1;
+    left: 12%;
+    top: -20%;
+    width: 1px;
+    height: 140%;
+    background: rgba(255, 255, 255, 0.16);
+    transform: rotate(34deg);
+  }
+  .final-title {
+    font-size: clamp(2.6rem, 6vw, 5rem);
+  }
+  .final-title :global(em) {
+    color: var(--sky);
+  }
+  .final-text {
+    max-width: 36em;
+    color: var(--on-navy-muted);
+    font-size: 1.0625rem;
+  }
+  .final-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 8px;
+  }
+  .final-actions .btn svg {
+    width: 18px;
+    height: 18px;
+  }
+  .final-actions .btn:hover svg {
+    transform: none;
+  }
+</style>

@@ -1,0 +1,104 @@
+---
+import SectionHead from './SectionHead.astro';
+import { useT, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+  index: string;
+}
+
+const t = useT(Astro.props.lang);
+---
+
+<section class="section section--mist about" id="sobre" aria-labelledby="sobre-title">
+  <div class="container">
+    <SectionHead index={Astro.props.index} eyebrow={t.about.eyebrow} title={t.about.title} titleId="sobre-title" />
+
+    <div class="about-grid">
+      <div class="about-copy reveal">
+        <p class="about-lead">{t.about.lead}</p>
+        <p class="about-body">{t.about.body}</p>
+      </div>
+
+      <ul class="about-list reveal" style="--delay: .12s" role="list">
+        {
+          t.about.differentiators.map((d, i) => (
+            <li>
+              <span class="about-num">{String(i + 1).padStart(2, '0')}</span>
+              <p>
+                <strong>{d.strong}</strong> {d.text}
+              </p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .about-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 24px;
+    row-gap: 56px;
+    align-items: start;
+  }
+  .about-copy {
+    grid-column: 1 / span 6;
+    display: grid;
+    gap: 28px;
+  }
+  .about-lead {
+    font-family: var(--font-display);
+    font-size: clamp(1.45rem, 2.2vw, 1.85rem);
+    font-weight: 500;
+    line-height: 1.4;
+  }
+  /* Editorial drop cap. */
+  .about-lead::first-letter {
+    float: left;
+    margin: 0.06em 0.12em 0 0;
+    font-size: 4.1em;
+    font-style: italic;
+    line-height: 0.8;
+    color: var(--navy);
+  }
+  .about-body {
+    color: var(--muted);
+    max-width: 36em;
+  }
+  .about-list {
+    grid-column: 8 / span 5;
+    list-style: none;
+    padding: 0;
+    border-top: 1px solid var(--rule-strong);
+  }
+  .about-list li {
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    gap: 12px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .about-num {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--accent);
+    padding-top: 3px;
+  }
+  .about-list p {
+    color: var(--muted);
+    font-size: 0.9875rem;
+  }
+  .about-list strong {
+    color: var(--navy);
+    font-weight: 600;
+  }
+  @media (max-width: 900px) {
+    .about-copy,
+    .about-list {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

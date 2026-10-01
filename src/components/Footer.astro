@@ -1,0 +1,193 @@
+---
+import Icon from './Icon.astro';
+import Logo from './Logo.astro';
+import { SITE, activeSocials } from '../data/site';
+import { navItems, routeHref, useT, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useT(lang);
+const home = routeHref('home', lang);
+const visible = new Set(navItems(t).map((i) => i.id));
+const companyLinks = (['sobre', 'equipa', 'testemunhos', 'faq'] as const).filter((id) => visible.has(id));
+const socials = activeSocials();
+const year = new Date().getFullYear();
+const iconFor = { Facebook: 'facebook', Instagram: 'instagram', LinkedIn: 'linkedin' } as const;
+---
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <Logo variant="white" height={48} />
+        <p>{t.footer.tagline}</p>
+      </div>
+
+      <nav class="footer-col" aria-label={t.footer.company}>
+        <h2>{t.footer.company}</h2>
+        <ul role="list">
+          {
+            companyLinks.map((id) => (
+              <li>
+                <a class="link-underline" href={`${home}#${id}`}>
+                  {t.nav[id]}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <nav class="footer-col" aria-label={t.footer.services}>
+        <h2>{t.footer.services}</h2>
+        <ul role="list">
+          {
+            t.footer.servicesLinks.map((label) => (
+              <li>
+                <a class="link-underline" href={`${home}#servicos`}>
+                  {label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <div class="footer-col">
+        <h2>{t.footer.contacts}</h2>
+        <ul role="list">
+          <li><a class="link-underline" href={`tel:${SITE.phone.tel}`}>{SITE.phone.display}</a></li>
+          <li><a class="link-underline" href={`mailto:${SITE.email.address}`}>{SITE.email.address}</a></li>
+          <li>
+            <address>
+              {SITE.address.street}<br />
+              {SITE.postalLine}
+            </address>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      {
+        socials.length > 0 && (
+          <ul class="socials" role="list">
+            {socials.map((s) => (
+              <li>
+                <a href={s.url} target="_blank" rel="noopener" aria-label={s.name}>
+                  <Icon name={iconFor[s.name]} size={18} />
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+      <ul class="legal" role="list">
+        <li><a class="link-underline" href={routeHref('privacy', lang)}>{t.footer.privacy}</a></li>
+        <li><a class="link-underline" href={SITE.complaintsBook} target="_blank" rel="noopener">{t.footer.complaints}</a></li>
+      </ul>
+      <p class="copyright">© {year} {SITE.name} · {t.footer.rights}</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--navy-deep);
+    color: var(--on-navy-muted);
+    padding-block: clamp(64px, 8vw, 104px) 32px;
+    font-size: 0.9375rem;
+  }
+  .footer-top {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(0, 1fr));
+    gap: 48px 32px;
+    padding-bottom: 56px;
+    border-bottom: 1px solid var(--on-navy-rule);
+  }
+  .footer-brand {
+    display: grid;
+    gap: 24px;
+    align-content: start;
+    max-width: 340px;
+  }
+  .footer-col h2 {
+    margin-bottom: 18px;
+    font-family: var(--font-label);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--white);
+  }
+  .footer-col ul {
+    display: grid;
+    gap: 10px;
+    list-style: none;
+    padding: 0;
+  }
+  .footer-col a {
+    text-decoration: none;
+    overflow-wrap: anywhere;
+  }
+  .footer-col a:hover {
+    color: var(--white);
+  }
+  address {
+    font-style: normal;
+  }
+  .footer-bottom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px 32px;
+    padding-top: 28px;
+    font-size: 0.8125rem;
+  }
+  .socials,
+  .legal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 24px;
+    list-style: none;
+    padding: 0;
+  }
+  .socials {
+    gap: 10px;
+  }
+  .socials a {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--on-navy-rule);
+    color: var(--white);
+    transition: border-color 0.25s var(--ease-out);
+  }
+  .socials a:hover {
+    border-color: var(--white);
+  }
+  .legal a {
+    text-decoration: none;
+  }
+  .legal a:hover {
+    color: var(--white);
+  }
+  @media (max-width: 900px) {
+    .footer-top {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .footer-brand {
+      grid-column: 1 / -1;
+    }
+  }
+  @media (max-width: 520px) {
+    .footer-top {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

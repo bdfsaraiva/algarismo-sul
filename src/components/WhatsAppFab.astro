@@ -1,0 +1,42 @@
+---
+import Icon from './Icon.astro';
+import { SITE } from '../data/site';
+import { useT, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const t = useT(Astro.props.lang);
+---
+
+<a class="wa-fab" href={`https://wa.me/${SITE.whatsapp.number}`} target="_blank" rel="noopener" aria-label={t.a11y.whatsapp}>
+  <Icon name="whatsapp" size={24} />
+</a>
+
+<style>
+  .wa-fab {
+    position: fixed;
+    right: clamp(16px, 3vw, 28px);
+    bottom: clamp(16px, 3vw, 28px);
+    z-index: 40;
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--navy);
+    color: var(--white);
+    /* Light ring keeps it visible over the navy sections. */
+    box-shadow:
+      0 0 0 1.5px rgba(255, 255, 255, 0.55),
+      0 12px 28px -10px rgba(0, 34, 80, 0.55);
+    transition:
+      transform 0.3s var(--ease-out),
+      background-color 0.3s var(--ease-out);
+  }
+  .wa-fab:hover {
+    background: #128c4a;
+    transform: translateY(-2px);
+  }
+</style>

@@ -1,0 +1,71 @@
+---
+// Base text to be legally reviewed by the client (company name and tax number missing).
+import LegalPage from '../../components/LegalPage.astro';
+import { SITE } from '../../data/site';
+---
+
+<LegalPage lang="en" route="privacy" title="Privacy policy" updated="Last updated: 1 October 2026">
+  <p><em>This is a translation for convenience. The Portuguese version prevails.</em></p>
+
+  <h2>1. Data controller</h2>
+  <p>
+    <strong>{SITE.name}</strong>, with offices at {`${SITE.address.street}, ${SITE.postalLine}`}, Portugal, is the controller of the personal data collected through this website and in the
+    course of its accounting, tax, payroll and advisory services. Contact:
+    <a href={`mailto:${SITE.email.address}`}>{SITE.email.address}</a>.
+  </p>
+
+  <h2>2. Data we process</h2>
+  <ul>
+    <li>Identification and contact details you send us voluntarily by email, phone or WhatsApp.</li>
+    <li>Tax, accounting and employment data needed to perform our service agreement.</li>
+    <li>Technical request data (IP address, date and time, browser type) logged by our hosting provider for security and operation.</li>
+  </ul>
+
+  <h2>3. Purposes and legal basis</h2>
+  <ul>
+    <li><strong>Performance of a contract</strong>: providing the services you engage us for (Art. 6(1)(b) GDPR).</li>
+    <li><strong>Legal obligations</strong>: filings with the Tax Authority, Social Security and other public bodies (Art. 6(1)(c) GDPR).</li>
+    <li><strong>Legitimate interest</strong>: answering enquiries, managing client relationships and website security (Art. 6(1)(f) GDPR).</li>
+  </ul>
+
+  <h2>4. Retention</h2>
+  <p>
+    Tax and accounting records are kept for the periods required by Portuguese tax and commercial law (generally 10
+    years). Contact data with no contractual relationship is deleted after 3 years without interaction.
+  </p>
+
+  <h2>5. Cookies and local storage</h2>
+  <p>
+    This website uses no tracking, advertising or analytics cookies. Fonts are served by the site itself, with no
+    third-party requests. We only store in your browser (<em>localStorage</em>) the fact that you dismissed the cookie
+    notice.
+  </p>
+  <p>
+    The Google map only loads if you click “Show map”. From then on, Google may collect data and set cookies under its
+    own privacy policy.
+  </p>
+
+  <h2>6. Processors and international transfers</h2>
+  <p>
+    The website is hosted by Vercel Inc. This service, like Google (if you enable the map) and Meta (if you contact us
+    on WhatsApp), may involve transfers outside the European Union under the EU-US Data Privacy Framework or standard
+    contractual clauses approved by the European Commission. For our services we use accounting software and cloud
+    storage bound by processing agreements under Art. 28 GDPR.
+  </p>
+
+  <h2>7. Your rights</h2>
+  <p>
+    You may at any time exercise your rights of access, rectification, erasure, restriction, portability and objection
+    by emailing us. You may also lodge a complaint with the Portuguese data protection authority, CNPD
+    (<a href="https://www.cnpd.pt" target="_blank" rel="noopener">cnpd.pt</a>).
+  </p>
+
+  <h2>8. Security</h2>
+  <p>
+    We apply appropriate technical and organisational measures, such as access control, encryption in transit and
+    regular backups, to protect your data against unauthorised access, alteration or destruction.
+  </p>
+
+  <h2>9. Changes</h2>
+  <p>This policy may be updated to reflect legal or operational changes. The version published on this page is always the one in force.</p>
+</LegalPage>

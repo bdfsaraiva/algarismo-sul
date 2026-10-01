@@ -1,0 +1,36 @@
+/*
+ * Algarismo Sul — design tokens.
+ * Paleta tirada do logotipo: azul-marinho #002250 sobre branco.
+ * Contraste (WCAG): --muted/branco 5.6:1 · --accent/branco 5.5:1 ·
+ * --on-navy-muted/--navy 8.6:1 · --sky/--navy 8.5:1.
+ */
+:root {
+  --navy: #002250;
+  --navy-deep: #0d1d30;
+  --navy-80: #1a3863;
+  --white: #ffffff;
+  --mist: #f3f5f8;
+  --sky: #a9c1e0;
+  --accent: #3a6aa6;
+
+  --ink: var(--navy);
+  --muted: rgba(0, 34, 80, 0.68);
+  --rule: rgba(0, 34, 80, 0.12);
+  --rule-strong: rgba(0, 34, 80, 0.28);
+  --on-navy: #ffffff;
+  --on-navy-muted: rgba(255, 255, 255, 0.72);
+  --on-navy-rule: rgba(255, 255, 255, 0.16);
+
+  --font-display: 'Cormorant Garamond', 'Iowan Old Style', Georgia, serif;
+  --font-label: 'Montserrat', 'Helvetica Neue', Arial, sans-serif;
+  --font-body: 'Manrope', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Consolas, monospace;
+
+  --container: 1240px;
+  --gutter: clamp(16px, 4vw, 48px);
+  --section-y: clamp(80px, 11vw, 152px);
+  --header-h: 76px;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --shadow-soft: 0 24px 48px -32px rgba(0, 34, 80, 0.35);
+}

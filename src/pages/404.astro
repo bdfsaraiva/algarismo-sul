@@ -1,0 +1,55 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { routeHref, useT } from '../i18n';
+
+const pt = useT('pt');
+const en = useT('en');
+---
+
+<BaseLayout lang="pt" route={null} title={pt.notFound.title} noindex>
+  <section class="not-found">
+    <div class="container">
+      <p class="code" aria-hidden="true">4<span class="slash">/</span>04</p>
+      <h1 class="display">{pt.notFound.title}</h1>
+      <p class="lede">{pt.notFound.text}</p>
+      <a class="btn btn-primary" href={routeHref('home', 'pt')}>{pt.notFound.back}</a>
+      <p class="alt" lang="en">
+        {en.notFound.text} <a href={routeHref('home', 'en')}>{en.notFound.back}</a>
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found {
+    padding-block: clamp(80px, 12vw, 160px);
+    text-align: center;
+  }
+  .container {
+    display: grid;
+    justify-items: center;
+    gap: 24px;
+  }
+  .code {
+    font-family: var(--font-display);
+    font-size: clamp(6rem, 18vw, 12rem);
+    font-weight: 500;
+    line-height: 0.9;
+    letter-spacing: -0.03em;
+  }
+  .code .slash {
+    font-size: 1em;
+    line-height: 1;
+  }
+  h1 {
+    font-size: clamp(2rem, 4vw, 3rem);
+  }
+  .alt {
+    margin-top: 24px;
+    font-size: 0.875rem;
+    color: var(--muted);
+  }
+  .alt a {
+    color: var(--accent);
+  }
+</style>

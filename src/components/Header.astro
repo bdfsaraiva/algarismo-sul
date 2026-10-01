@@ -1,0 +1,301 @@
+---
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import LangSwitch from './LangSwitch.astro';
+import { SITE } from '../data/site';
+import { navItems, routeHref, useT, type Lang, type RouteKey, type SectionId } from '../i18n';
+
+interface Props {
+  lang: Lang;
+  route: RouteKey | null;
+}
+
+const { lang, route } = Astro.props;
+const t = useT(lang);
+const home = routeHref('home', lang);
+const href = (id: SectionId) => (route === 'home' ? `#${id}` : `${home}#${id}`);
+const items = navItems(t);
+const desktopItems = items.filter((i) => i.id !== 'testemunhos');
+---
+
+<header class="site-header" data-header>
+  <div class="container header-inner">
+    <a href={home} class="brand" aria-label={t.a11y.home}>
+      <Logo height={44} />
+    </a>
+
+    <nav class="nav-desktop" aria-label={t.a11y.mainNav}>
+      <ul role="list">
+        {
+          desktopItems.map((item) => (
+            <li>
+              <a class="link-underline" href={href(item.id)}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="header-tail">
+      <LangSwitch lang={lang} route={route} />
+      <a class="btn btn-primary header-cta" href={href('contactos')}>{t.cta.meeting}</a>
+      <button
+        class="menu-toggle"
+        type="button"
+        aria-label={t.a11y.openMenu}
+        aria-haspopup="dialog"
+        aria-controls="mobile-menu"
+        aria-expanded="false"
+        data-menu-open
+      >
+        <span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<dialog id="mobile-menu" class="mobile-menu" aria-label={t.a11y.menu}>
+  <div class="container mobile-head">
+    <Logo variant="white" height={40} />
+    <button class="menu-close" type="button" aria-label={t.a11y.closeMenu} data-menu-close>
+      <span></span><span></span>
+    </button>
+  </div>
+  <nav class="container mobile-nav" aria-label={t.a11y.menu}>
+    <ol role="list">
+      {
+        items.map((item, i) => (
+          <li style={`--i: ${i}`}>
+            <a href={href(item.id)}>
+              <span class="mobile-index">{String(i + 1).padStart(2, '0')}</span>
+              <span>{item.label}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+  </nav>
+  <div class="container mobile-foot">
+    <a href={`tel:${SITE.phone.tel}`}><Icon name="phone" size={18} /> {SITE.phone.display}</a>
+    <a href={`mailto:${SITE.email.address}`}><Icon name="mail" size={18} /> {SITE.email.address}</a>
+    <LangSwitch lang={lang} route={route} tone="light" />
+  </div>
+</dialog>
+
+<script>
+  const header = document.querySelector<HTMLElement>('[data-header]');
+  const dialog = document.querySelector<HTMLDialogElement>('#mobile-menu');
+  const openBtn = document.querySelector<HTMLButtonElement>('[data-menu-open]');
+
+  if (header) {
+    const onScroll = () => header.classList.toggle('is-scrolled', window.scrollY > 8);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+
+  if (dialog && openBtn) {
+    openBtn.addEventListener('click', () => {
+      dialog.showModal();
+      openBtn.setAttribute('aria-expanded', 'true');
+    });
+    dialog.addEventListener('close', () => openBtn.setAttribute('aria-expanded', 'false'));
+    dialog.querySelectorAll('a, [data-menu-close]').forEach((el) => el.addEventListener('click', () => dialog.close()));
+    // Close when resizing to desktop, where the menu is not reachable.
+    window.matchMedia('(min-width: 1100px)').addEventListener('change', (e) => {
+      if (e.matches && dialog.open) dialog.close();
+    });
+  }
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: saturate(1.4) blur(12px);
+    -webkit-backdrop-filter: saturate(1.4) blur(12px);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.3s var(--ease-out);
+  }
+  .site-header.is-scrolled {
+    border-bottom-color: var(--rule);
+  }
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    height: var(--header-h);
+  }
+  .brand {
+    flex-shrink: 0;
+  }
+  .nav-desktop ul {
+    display: flex;
+    gap: clamp(18px, 2.2vw, 34px);
+    list-style: none;
+    padding: 0;
+  }
+  .nav-desktop a {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--navy);
+    white-space: nowrap;
+  }
+  .header-tail {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .header-cta {
+    min-height: 44px;
+    padding: 12px 20px;
+  }
+  .menu-toggle,
+  .menu-close {
+    position: relative;
+    display: none;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--rule-strong);
+    background: transparent;
+  }
+  .menu-toggle span,
+  .menu-close span {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    height: 1.5px;
+    background: currentColor;
+  }
+  .menu-toggle span:first-child {
+    top: 17px;
+  }
+  .menu-toggle span:last-child {
+    top: 25px;
+    left: 18px;
+  }
+
+  @media (max-width: 1099px) {
+    .nav-desktop {
+      display: none;
+    }
+    .menu-toggle {
+      display: block;
+    }
+  }
+  @media (max-width: 640px) {
+    .header-cta,
+    .header-tail > :global(.lang-switch) {
+      display: none;
+    }
+    .brand :global(.logo) {
+      --logo-h: 38px !important;
+    }
+  }
+
+  /* ── Mobile menu (native <dialog>: focus trap + Esc for free) ── */
+  .mobile-menu {
+    width: 100%;
+    max-width: 100%;
+    height: 100dvh;
+    max-height: 100dvh;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: var(--navy);
+    color: var(--white);
+    display: none;
+    flex-direction: column;
+  }
+  .mobile-menu[open] {
+    display: flex;
+    animation: menu-in 0.45s var(--ease-out);
+  }
+  .mobile-menu::backdrop {
+    background: transparent;
+  }
+  :global(html:has(.mobile-menu[open])) {
+    overflow: hidden;
+  }
+  @keyframes menu-in {
+    from {
+      opacity: 0;
+      transform: translateY(-12px);
+    }
+  }
+  .mobile-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--header-h);
+    border-bottom: 1px solid var(--on-navy-rule);
+  }
+  .menu-close {
+    display: block;
+    border-color: rgba(255, 255, 255, 0.4);
+    color: var(--white);
+  }
+  .menu-close span {
+    top: 21px;
+  }
+  .menu-close span:first-child {
+    transform: rotate(45deg);
+  }
+  .menu-close span:last-child {
+    transform: rotate(-45deg);
+  }
+  .mobile-nav {
+    flex: 1;
+    overflow-y: auto;
+    padding-block: 32px;
+  }
+  .mobile-nav ol {
+    list-style: none;
+    padding: 0;
+  }
+  .mobile-nav li {
+    border-bottom: 1px solid var(--on-navy-rule);
+    animation: item-in 0.5s var(--ease-out) both;
+    animation-delay: calc(0.06s * var(--i) + 0.1s);
+  }
+  @keyframes item-in {
+    from {
+      opacity: 0;
+      transform: translateX(-16px);
+    }
+  }
+  .mobile-nav a {
+    display: flex;
+    align-items: baseline;
+    gap: 18px;
+    padding: 14px 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.9rem, 8vw, 2.6rem);
+    font-weight: 500;
+    line-height: 1.1;
+    text-decoration: none;
+  }
+  .mobile-index {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--sky);
+  }
+  .mobile-foot {
+    display: grid;
+    gap: 14px;
+    padding-block: 24px 32px;
+    border-top: 1px solid var(--on-navy-rule);
+    font-size: 0.9375rem;
+  }
+  .mobile-foot a {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: var(--on-navy-muted);
+  }
+</style>

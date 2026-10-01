@@ -1,0 +1,87 @@
+---
+import { routeHref, useT, type Lang, type RouteKey } from '../i18n';
+
+interface Props {
+  lang: Lang;
+  route: RouteKey | null;
+  tone?: 'dark' | 'light';
+}
+
+const { lang, route, tone = 'dark' } = Astro.props;
+const t = useT(lang);
+const other: Lang = lang === 'pt' ? 'en' : 'pt';
+const target = routeHref(route ?? 'home', other);
+const labels: Record<Lang, string> = { pt: 'PT', en: 'EN' };
+const order: Lang[] = ['pt', 'en'];
+---
+
+<div class:list={['lang-switch', `lang-switch--${tone}`]}>
+  {
+    order.map((code, i) => (
+      <>
+        {i > 0 && (
+          <span class="slash" aria-hidden="true">
+            /
+          </span>
+        )}
+        {code === lang ? (
+          <span class="current" aria-current="true">
+            {labels[code]}
+          </span>
+        ) : (
+          <a href={target} hreflang={code} lang={code} data-lang-switch>
+            {labels[code]}
+            <span class="visually-hidden">— {t.a11y.switchLang}</span>
+          </a>
+        )}
+      </>
+    ))
+  }
+</div>
+
+<script>
+  // Keep the current section when switching language (same anchor ids in both).
+  document.querySelectorAll<HTMLAnchorElement>('[data-lang-switch]').forEach((link) => {
+    link.addEventListener('click', () => {
+      if (location.hash) link.hash = location.hash;
+    });
+  });
+</script>
+
+<style>
+  .lang-switch {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+    font-family: var(--font-label);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+  }
+  .lang-switch .slash {
+    font-size: 1.4em;
+  }
+  .current {
+    color: var(--navy);
+  }
+  a {
+    color: var(--muted);
+    text-decoration: none;
+    padding: 10px 2px;
+  }
+  a:hover {
+    color: var(--navy);
+  }
+  .lang-switch--light .current {
+    color: var(--white);
+  }
+  .lang-switch--light a {
+    color: var(--on-navy-muted);
+  }
+  .lang-switch--light a:hover {
+    color: var(--white);
+  }
+  .lang-switch--light .slash {
+    color: var(--sky);
+  }
+</style>

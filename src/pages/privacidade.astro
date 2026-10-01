@@ -1,0 +1,79 @@
+---
+// Texto-base a validar juridicamente pelo cliente (denominação social e NIF em falta).
+import LegalPage from '../components/LegalPage.astro';
+import { SITE } from '../data/site';
+---
+
+<LegalPage lang="pt" route="privacy" title="Política de privacidade" updated="Última atualização: 1 de outubro de 2026">
+  <h2>1. Responsável pelo tratamento</h2>
+  <p>
+    A <strong>{SITE.name}</strong>, com escritório na {`${SITE.address.street}, ${SITE.postalLine}`}, é responsável pelo tratamento dos dados pessoais recolhidos através deste site e no âmbito
+    dos seus serviços de contabilidade, fiscalidade, recursos humanos e consultoria de gestão. Contacto:
+    <a href={`mailto:${SITE.email.address}`}>{SITE.email.address}</a>.
+  </p>
+
+  <h2>2. Que dados tratamos</h2>
+  <ul>
+    <li>Dados de identificação e contacto que nos envia voluntariamente por email, telefone ou WhatsApp.</li>
+    <li>Dados fiscais, contabilísticos e laborais necessários à execução do contrato de prestação de serviços.</li>
+    <li>
+      Dados técnicos dos pedidos ao site (endereço IP, data e hora, tipo de navegador), registados pelo serviço de
+      alojamento para segurança e funcionamento.
+    </li>
+  </ul>
+
+  <h2>3. Finalidades e fundamento jurídico</h2>
+  <ul>
+    <li><strong>Execução de contrato</strong>: prestação dos serviços contratados (art. 6.º, n.º 1, al. b) do RGPD).</li>
+    <li>
+      <strong>Cumprimento de obrigações legais</strong>: comunicações à Autoridade Tributária, à Segurança Social e a outras
+      entidades públicas (art. 6.º, n.º 1, al. c) do RGPD).
+    </li>
+    <li>
+      <strong>Interesse legítimo</strong>: resposta a pedidos de contacto, gestão da relação com clientes e segurança do site
+      (art. 6.º, n.º 1, al. f) do RGPD).
+    </li>
+  </ul>
+
+  <h2>4. Prazos de conservação</h2>
+  <p>
+    Os dados fiscais e contabilísticos são conservados durante os prazos exigidos pela legislação tributária e comercial
+    (em regra, 10 anos). Os dados de contacto sem relação contratual são eliminados ao fim de 3 anos sem interação.
+  </p>
+
+  <h2>5. Cookies e armazenamento local</h2>
+  <p>
+    Este site não usa cookies de rastreio, publicidade ou estatística. As fontes tipográficas são servidas pelo próprio
+    site, sem pedidos a terceiros. Guardamos no seu navegador (<em>localStorage</em>) apenas a indicação de que fechou o
+    aviso sobre cookies.
+  </p>
+  <p>
+    O mapa da Google só é carregado se clicar em «Mostrar mapa». A partir desse momento, a Google pode recolher dados e
+    definir cookies nos termos da sua própria política de privacidade.
+  </p>
+
+  <h2>6. Subcontratantes e transferências internacionais</h2>
+  <p>
+    O site está alojado na Vercel Inc. Este serviço, tal como a Google (se ativar o mapa) e a Meta (se nos contactar por
+    WhatsApp), pode implicar transferências de dados para fora da União Europeia, realizadas ao abrigo do EU-US Data
+    Privacy Framework ou de cláusulas contratuais-tipo aprovadas pela Comissão Europeia. Para a prestação dos serviços
+    recorremos a software de contabilidade e armazenamento em <em>cloud</em> sujeitos a contrato de subcontratação nos
+    termos do art. 28.º do RGPD.
+  </p>
+
+  <h2>7. Os seus direitos</h2>
+  <p>
+    Pode exercer a qualquer momento os direitos de acesso, retificação, apagamento, limitação do tratamento,
+    portabilidade e oposição, contactando-nos por email. Tem ainda o direito de apresentar reclamação à Comissão Nacional
+    de Proteção de Dados (<a href="https://www.cnpd.pt" target="_blank" rel="noopener">cnpd.pt</a>).
+  </p>
+
+  <h2>8. Segurança</h2>
+  <p>
+    Aplicamos medidas técnicas e organizativas adequadas, como controlo de acessos, encriptação em trânsito e cópias de
+    segurança regulares, para proteger os seus dados contra acesso, alteração ou destruição não autorizados.
+  </p>
+
+  <h2>9. Alterações</h2>
+  <p>Esta política pode ser atualizada para refletir alterações legais ou operacionais. A versão em vigor é sempre a publicada nesta página.</p>
+</LegalPage>

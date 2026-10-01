@@ -1,0 +1,33 @@
+---
+/** Horizontal lockup (monogram + "ALGARISMO SUL / CONTABILIDADE"). */
+import { withBase } from '../lib/paths';
+
+interface Props {
+  variant?: 'navy' | 'white';
+  /** Display height in px; can be overridden in CSS through --logo-h. */
+  height?: number;
+  class?: string;
+}
+
+const { variant = 'navy', height = 44, class: className } = Astro.props;
+const base = withBase(variant === 'white' ? '/brand/logo-horizontal-white' : '/brand/logo-horizontal');
+// Aspect ratio of the trimmed lockup (see scripts/prepare-brand.py).
+const RATIO = 241 / 64;
+const width = Math.round(height * RATIO);
+---
+
+<picture class:list={['logo', className]} style={`--logo-h: ${height}px`}>
+  <source type="image/webp" srcset={`${base}.webp 1x, ${base}@2x.webp 2x`} />
+  <img src={`${base}.png`} srcset={`${base}@2x.png 2x`} width={width} height={height} alt="Algarismo Sul" decoding="async" />
+</picture>
+
+<style>
+  .logo {
+    display: block;
+    line-height: 0;
+  }
+  .logo img {
+    height: var(--logo-h);
+    width: auto;
+  }
+</style>

@@ -1,0 +1,25 @@
+---
+import { rich } from '../i18n';
+
+interface Props {
+  index?: string;
+  eyebrow: string;
+  title: string;
+  intro?: string;
+  titleId?: string;
+}
+
+const { index, eyebrow, title, intro, titleId } = Astro.props;
+---
+
+<header class="section-head">
+  <div>
+    <p class="eyebrow reveal">
+      {index && <span>{index}</span>}
+      <span class="slash" aria-hidden="true">/</span>
+      <span>{eyebrow}</span>
+    </p>
+    <h2 class="display section-title reveal" id={titleId} style="--delay: .08s" set:html={rich(title)} />
+  </div>
+  {intro && <p class="lede reveal" style="--delay: .16s" set:html={rich(intro)} />}
+</header>

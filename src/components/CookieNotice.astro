@@ -1,0 +1,92 @@
+---
+/**
+ * Informational notice: the site sets no tracking cookies, so no consent
+ * banner is required. The only third party (Google Maps) loads on demand.
+ */
+import { routeHref, useT, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useT(lang);
+---
+
+<section class="cookie" aria-label="Cookies" data-cookie hidden>
+  <p>
+    {t.cookie.text}
+    <a href={routeHref('privacy', lang)}>{t.cookie.more}</a>
+  </p>
+  <button class="cookie-ok" type="button" data-cookie-ok>{t.cookie.ok}</button>
+</section>
+
+<script>
+  const KEY = 'as-cookie-notice';
+  const notice = document.querySelector<HTMLElement>('[data-cookie]');
+
+  const read = (): string | null => {
+    try {
+      return localStorage.getItem(KEY);
+    } catch {
+      return null;
+    }
+  };
+
+  if (notice && read() !== 'ok') {
+    notice.hidden = false;
+    notice.querySelector('[data-cookie-ok]')?.addEventListener('click', () => {
+      try {
+        localStorage.setItem(KEY, 'ok');
+      } catch {
+        // Storage unavailable (private mode): the notice simply shows again next visit.
+      }
+      notice.hidden = true;
+    });
+  }
+</script>
+
+<style>
+  .cookie {
+    position: fixed;
+    left: clamp(16px, 3vw, 28px);
+    bottom: clamp(16px, 3vw, 28px);
+    z-index: 45;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    max-width: min(520px, calc(100vw - 104px));
+    padding: 16px 18px 16px 22px;
+    background: var(--white);
+    border: 1px solid var(--rule-strong);
+    box-shadow: var(--shadow-soft);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    animation: cookie-in 0.6s 1.2s var(--ease-out) both;
+  }
+  .cookie[hidden] {
+    display: none;
+  }
+  .cookie a {
+    color: var(--accent);
+  }
+  .cookie-ok {
+    flex-shrink: 0;
+    min-height: 40px;
+    padding: 8px 16px;
+    border: 1px solid var(--navy);
+    background: var(--navy);
+    color: var(--white);
+    font-family: var(--font-label);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  @keyframes cookie-in {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+  }
+</style>
