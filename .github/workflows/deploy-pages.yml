@@ -1,0 +1,51 @@
+# Publishes the feat/astro-site branch to GitHub Pages as a preview
+# (https://<owner>.github.io/<repo>/), without touching Vercel production.
+name: Deploy preview to GitHub Pages
+
+on:
+  push:
+    branches: [feat/astro-site]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gh-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Unit tests (fiscal calendar)
+        run: npm test
+
+      - name: Build for the GitHub Pages sub-path
+        run: npm run build
+        env:
+          SITE_URL: https://${{ github.repository_owner }}.github.io
+          BASE_PATH: /${{ github.event.repository.name }}
+          SITE_NOINDEX: 'true'
+
+      - name: Validate HTML
+        run: npx html-validate "dist/**/*.html"
+
+      # The gh-pages branch only holds build output: tell Vercel to skip it.
+      - name: Disable Vercel deployments for gh-pages
+        run: echo '{"git":{"deploymentEnabled":false}}' > dist/vercel.json
+
+      - uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          force_orphan: true
